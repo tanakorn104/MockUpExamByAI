@@ -156,7 +156,7 @@ def generate_quiz():
         full_prompt = f"{final_instruction}\n{json_format_prompt}\n\nเนื้อหาประกอบการออกข้อสอบ:\n{content}"
 
         response = client.models.generate_content(
-            model='gemma-3-12b-it',
+            model='gemma-3-27b-it',
             contents=full_prompt,
             config=types.GenerateContentConfig(
                 temperature=1.0 # เพิ่มความสุ่มให้สูงขึ้นเพื่อความหลากหลายของคำตอบ
