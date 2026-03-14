@@ -81,7 +81,16 @@ def generate_quiz():
         )
         
         # จัดการข้อมูล JSON
-        st.session_state.quiz_data = json.loads(response.text.strip())
+        clean_json = response.text.strip()
+        
+        # บางที AI อาจจะแถม ```json มาให้ เราต้องตัดทิ้งก่อน
+        if clean_json.startswith("```json"):
+            clean_json = clean_json[7:]
+        if clean_json.endswith("```"):
+            clean_json = clean_json[:-3]
+            
+        # เคล็ดลับคือการเติม strict=False เข้าไปครับ!
+        st.session_state.quiz_data = json.loads(clean_json.strip(), strict=False)
         
         # ใส่ Default detail ป้องกัน Error
         for q in st.session_state.quiz_data:
