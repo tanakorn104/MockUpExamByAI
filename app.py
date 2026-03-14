@@ -137,7 +137,7 @@ def generate_quiz():
         }
 
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemma-3-12b-it',
             contents=f"เนื้อหา:\n{content}",
             config=types.GenerateContentConfig(
                 system_instruction=final_instruction,
