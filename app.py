@@ -37,11 +37,7 @@ if not API_KEY:
     st.error("❌ ไม่พบ API Key กรุณาตรวจสอบการตั้งค่า")
     st.stop()
 
-# แก้ไขจุดที่ 1: บังคับใช้ API เวอร์ชัน v1alpha สำหรับโมเดล 3.1 ที่เพิ่งออกใหม่
-client = genai.Client(
-    api_key=API_KEY,
-    http_options={'api_version': 'v1alpha'}
-)
+client = genai.Client(api_key=API_KEY)
 
 # ==========================================
 # 1. ระบบจัดการประวัติ (History State)
@@ -125,45 +121,41 @@ def generate_quiz():
         with open("instruction.txt", "r", encoding="utf-8") as f:
             final_instruction = f.read()
 
+        # บังคับภาษาไทยและความซับซ้อนของข้อสอบอย่างเข้มงวด
         json_format_prompt = """
-        สำคัญมาก: กรุณาตอบกลับเป็นรูปแบบ JSON Array เท่านั้น ห้ามมีข้อความอธิบายอื่นปะปน 
-        
-        !!! กฎการสร้างข้อสอบ (ต้องทำตามอย่างเคร่งครัดเพื่อให้ได้ระดับเดียวกับข้อสอบมหาวิทยาลัย) !!!
-        1. ให้ออกข้อสอบจำนวนทั้งหมด 24 ข้อ
-        2. โจทย์คำถาม (q) ต้องมีความยาว เป็น "สถานการณ์จำลอง" (Scenario-based) มีการกำหนดค่าตัวแปร อ้างอิงสถาปัตยกรรม หรือสั่งให้วิเคราะห์/คำนวณ ห้ามถามสั้นๆ ทื่อๆ เด็ดขาด
-        3. ข้อ 1-10 ให้กำหนด "type": "CHOICE": โดย "options" ทั้ง 4 ตัวเลือกต้องเป็นประโยคอธิบายยาวๆ เชิงลึก
-        4. ข้อ 11-20 ให้กำหนด "type": "SHORT": เป็นข้อเขียนเชิงวิเคราะห์ อธิบายหลักการ หรือเปรียบเทียบ
-        5. ข้อ 21-24 ให้กำหนด "type": "SHORT": เป็นโจทย์สถานการณ์ขนาดใหญ่ โดยในโจทย์ (q) ต้องแบ่งเป็น "Part A:" และ "Part B:" อย่างชัดเจน (เช่น การคำนวณ CPU Utilization, ออกแบบ Instruction Format)
-        6. ฟิลด์ "detail" ต้องอธิบายเฉลยยาวๆ ทีละขั้นตอน (Step-by-step) อย่างละเอียดที่สุด
+        คำสั่งพิเศษ (สำคัญที่สุด):
+        1. ทุกส่วนของเนื้อหาใน JSON (q, options, a, detail) ต้องเป็น "ภาษาไทย" เท่านั้น
+        2. จำนวนข้อสอบ: 24 ข้อ
+        3. ระดับความยาก: สูง (University Level) 
+        4. รูปแบบโจทย์ (q): 
+           - ห้ามถามนิยามสั้นๆ 
+           - ต้องใช้ "สถานการณ์จำลอง" (Scenario-based) เช่น "หากบริษัทหนึ่งต้องการออกแบบระบบ I/O สำหรับ..." หรือ "พิจารณาการทำงานของ CPU ที่ใช้กลไก..."
+           - ต้องมีการกำหนดค่าตัวแปร เช่น ความเร็ว Bus, ขนาดหน่วยความจำ, หรือค่าตัวเลขฐานสองมาให้คำนวณ
+        5. โครงสร้างข้อสอบ:
+           - ข้อ 1-10 (CHOICE): โจทย์สถานการณ์ยาว ตัวเลือก (options) ต้องเป็นประโยควิเคราะห์เชิงลึก 4 ตัวเลือก
+           - ข้อ 11-20 (SHORT): โจทย์เชิงวิเคราะห์ เปรียบเทียบเทคนิค หรืออธิบายกลไกในระดับฮาร์ดแวร์
+           - ข้อ 21-24 (SHORT): โจทย์ Case Study ขนาดใหญ่ โดยใน 'q' ต้องแบ่งเป็น 'Part A:' และ 'Part B:' ชัดเจน (เช่น Part A ให้คำนวณผลลัพธ์จากอัลกอริทึม, Part B ให้วิเคราะห์ผลกระทบต่อประสิทธิภาพ)
+        6. เฉลยและคำอธิบาย (detail): ต้องอธิบายวิธีคิดแบบ Step-by-step อย่างละเอียดที่สุด
 
-        ตัวอย่างโครงสร้าง JSON:
+        ตอบกลับเป็นรูปแบบ JSON Array เท่านั้น ห้ามมีข้อความอื่น:
         [
             {
                 "type": "CHOICE",
-                "q": "โจทย์สถานการณ์จำลองที่ยาวและซับซ้อน...",
-                "options": ["ตัวเลือกยาวและละเอียด 1", "ตัวเลือกยาวและละเอียด 2", "ตัวเลือกยาว 3", "ตัวเลือก 4"],
-                "a": "คำตอบที่ถูกต้องตรงกับใน options",
-                "detail": "คำอธิบายละเอียดเชิงลึก ทำไมถูก ทำไมผิด..."
-            },
-            {
-                "type": "SHORT",
-                "q": "สถานการณ์ยาวมาก... Part A: ให้วิเคราะห์... Part B: ให้ออกแบบ...",
-                "options": [],
-                "a": "เฉลยแบบเจาะลึก...",
-                "detail": "คำอธิบายขั้นตอนอย่างละเอียด..."
+                "q": "โจทย์ภาษาไทยแบบสถานการณ์จำลองที่ยาว...",
+                "options": ["ตัวเลือก 1 ยาวๆ", "ตัวเลือก 2 ยาวๆ", "ตัวเลือก 3", "ตัวเลือก 4"],
+                "a": "คำตอบที่ถูกต้อง",
+                "detail": "อธิบายขั้นตอนภาษาไทยแบบละเอียด..."
             }
         ]
         """
         
-        full_prompt = f"{final_instruction}\n{json_format_prompt}\n\nเนื้อหา:\n{content}"
+        full_prompt = f"{final_instruction}\n{json_format_prompt}\n\nเนื้อหาประกอบการออกข้อสอบ:\n{content}"
 
-        # แก้ไขจุดที่ 2: เปลี่ยนโมเดลเป็น gemini-3.1-flash-lite
         response = client.models.generate_content(
-            model='gemini-3.1-flash-lite',
+            model='gemma-3-12b-it',
             contents=full_prompt,
             config=types.GenerateContentConfig(
-                temperature=0.8,
-                response_mime_type="application/json" 
+                temperature=0.8
             )
         )
         
@@ -194,7 +186,6 @@ with st.sidebar:
     if len(st.session_state.exam_history) > 0:
         st.success(f"คุณทำข้อสอบไปแล้ว {len(st.session_state.exam_history)} ชุด")
         
-        # ปุ่มโหลดประวัติเป็นไฟล์ Word
         history_docx = create_docx(mode="history", history_data=st.session_state.exam_history)
         st.download_button(
             label="💾 โหลดประวัติทั้งหมด (Word)",
@@ -204,7 +195,6 @@ with st.sidebar:
             use_container_width=True
         )
         
-        # ปุ่มโหลดประวัติเป็นไฟล์ JSON เผื่อใช้ทำ Data
         history_json = json.dumps(st.session_state.exam_history, ensure_ascii=False, indent=4)
         st.download_button(
             label="📄 โหลดประวัติรูปแบบข้อมูล (JSON)",
@@ -224,19 +214,16 @@ if "app_mode" not in st.session_state:
 
 st.title(f"🎓 {config.get('page_title')}")
 
-# --- หน้าแรก ---
 if st.session_state.app_mode == "start":
     st.markdown(f"**{config.get('welcome_message')}**")
     if st.button(config.get('button_text'), use_container_width=True):
-        with st.spinner("AI กำลังสร้างข้อสอบ..."):
+        with st.spinner("AI กำลังสร้างข้อสอบเชิงวิเคราะห์ระดับยาก (ภาษาไทย)..."):
             if generate_quiz():
                 st.rerun()
 
-# --- หน้าทำข้อสอบ ---
 elif st.session_state.app_mode == "quiz_running":
     st.success(config.get('success_message'))
     
-    # ดาวน์โหลดใบงาน (มีโจทย์ด้านหน้า เฉลยอยู่หน้าหลัง)
     worksheet_data = create_docx(quiz_data=st.session_state.quiz_data, mode="worksheet")
     st.download_button(
         label="📥 ดาวน์โหลดใบงาน (โจทย์อยู่ด้านหน้า เฉลยอยู่ด้านหลัง)",
@@ -256,17 +243,14 @@ elif st.session_state.app_mode == "quiz_running":
             if q_type == "CHOICE":
                 temp_answers[i] = st.radio(f"คำตอบข้อ {i+1}", q.get('options', []), key=f"ans_{i}", index=None, label_visibility="collapsed")
             else:
-                temp_answers[i] = st.text_input(f"คำตอบข้อ {i+1}", key=f"ans_{i}", placeholder="พิมพ์คำตอบสั้นๆ...", label_visibility="collapsed")
+                temp_answers[i] = st.text_input(f"คำตอบข้อ {i+1}", key=f"ans_{i}", placeholder="พิมพ์คำตอบเชิงวิเคราะห์หรือผลลัพธ์การคำนวณ...", label_visibility="collapsed")
             st.write("") 
 
         if st.form_submit_button("📤 ส่งข้อสอบและตรวจคำตอบ", use_container_width=True):
             st.session_state.user_answers = temp_answers
-            
-            # คำนวณคะแนนเพื่อเก็บลงประวัติ
             score = sum(1 for idx, q in enumerate(st.session_state.quiz_data) 
                         if str(temp_answers.get(idx, "")).strip().lower() == str(q.get('a', '')).strip().lower())
             
-            # บันทึกประวัติลง Session State
             st.session_state.exam_history.append({
                 "quiz_data": st.session_state.quiz_data,
                 "user_answers": temp_answers,
@@ -277,9 +261,7 @@ elif st.session_state.app_mode == "quiz_running":
             st.session_state.app_mode = "result"
             st.rerun()
 
-# --- หน้าผลลัพธ์ ---
 elif st.session_state.app_mode == "result":
-    # คำนวณคะแนนปัจจุบัน
     score = sum(1 for i, q in enumerate(st.session_state.quiz_data) 
                 if str(st.session_state.user_answers.get(i, "")).strip().lower() == str(q.get('a', '')).strip().lower())
     total_q = len(st.session_state.quiz_data)
@@ -300,7 +282,6 @@ elif st.session_state.app_mode == "result":
                 st.write(f"**เฉลยที่ถูกต้อง:** {q.get('a')}")
             st.info(f"💡 **คำอธิบาย:** {q.get('detail')}")
 
-    # ปุ่มดาวน์โหลดเฉลยชุดปัจจุบัน และ เริ่มใหม่
     col1, col2 = st.columns(2)
     with col1:
         result_data = create_docx(quiz_data=st.session_state.quiz_data, user_answers=st.session_state.user_answers, mode="result")
