@@ -6,6 +6,7 @@ from google.genai import types
 from docx import Document
 import io
 import datetime
+import time
 
 # ==========================================
 # 0. การตั้งค่าและโหลด API Key
@@ -104,7 +105,7 @@ def create_docx(quiz_data=None, user_answers=None, mode="worksheet", history_dat
                 doc.add_paragraph(f"ข้อ {i+1}: {q.get('q', '')}", style='List Number')
                 doc.add_paragraph(f"คุณตอบ: {record['user_answers'].get(i, 'ไม่ได้ตอบ')}")
                 doc.add_paragraph(f"เฉลย: {q.get('a', '')}", style='Intense Quote')
-                doc.add_paragraph(f"คำอธิบาย: {q.get('detail', '')}\n")
+                doc.add_paragraph(f"คำอธิบาย: {record.get('detail', record.get('explanation', ''))}\n")
             doc.add_page_break()
 
     bio = io.BytesIO()
@@ -121,15 +122,19 @@ def generate_quiz():
         with open("instruction.txt", "r", encoding="utf-8") as f:
             final_instruction = f.read()
 
-        # บังคับภาษาไทย ความซับซ้อน และจำนวนข้อ 24 ข้ออย่างเด็ดขาด
-        json_format_prompt = """
+        # สร้างค่าสุ่มจากเวลาปัจจุบันเพื่อป้องกันการออกข้อสอบซ้ำเดิม
+        current_time_seed = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+
+        # บังคับภาษาไทย ความซับซ้อน และจำนวนข้อ 24 ข้ออย่างเด็ดขาด พร้อมเน้นย้ำความหลากหลาย
+        json_format_prompt = f"""
         คำสั่งพิเศษ (สำคัญที่สุด - ปฏิบัติตามอย่างเคร่งครัด):
         1. จำนวนข้อสอบ: ต้องมีทั้งหมด "24 ข้อ" ห้ามขาดแม้แต่ข้อเดียว (ข้อ 1 ถึง 24)
         2. ภาษา: ทุกฟิลด์ใน JSON (q, options, a, detail) ต้องเป็น "ภาษาไทย" 100%
-        3. ระดับความยาก: สูงมาก (University Final Exam Level)
+        3. ระดับความยาก: สูงมาก (University Final Exam Level) และห้ามออกข้อสอบซ้ำกับครั้งก่อนๆ
         4. รูปแบบโจทย์ (q): 
-           - ต้องเป็น "สถานการณ์จำลอง" (Scenario-based) ยาวๆ 
-           - มีการกำหนดตัวเลข/พารามิเตอร์ (เช่น ความเร็ว Clock 2.5GHz, หน่วยความจำ 8GB, ข้อมูล 0x7F) มาให้คำนวณหรือวิเคราะห์เชิงลึก
+           - ต้องเป็น "สถานการณ์จำลอง" (Scenario-based) ยาวๆ และหลากหลายประเภท
+           - มีการสุ่มค่าตัวเลข/พารามิเตอร์ใหม่ๆ ในทุกครั้งที่เจน (อ้างอิงจาก Seed: {current_time_seed})
+           - ต้องมีการกำหนดค่าทางเทคนิคมาให้คำนวณหรือวิเคราะห์เชิงลึก
         5. โครงสร้างรายการ JSON (รวม 24 รายการ):
            - ลำดับที่ 1-10: เป็นประเภท "CHOICE" (ปรนัย) โดย options 4 ตัวเลือกต้องเป็นประโยควิเคราะห์เชิงลึกที่ยาวและกึ่งหลอก
            - ลำดับที่ 11-20: เป็นประเภท "SHORT" (อัตนัย/เขียนตอบ) โจทย์วิเคราะห์การทำงานของฮาร์ดแวร์หรือเปรียบเทียบเทคนิค
@@ -138,13 +143,13 @@ def generate_quiz():
 
         ตอบกลับเป็นรูปแบบ JSON Array เท่านั้น ห้ามมีคำอธิบายอื่นนอก JSON:
         [
-            {
+            {{
                 "type": "CHOICE",
-                "q": "โจทย์สถานการณ์จำลองภาษาไทยที่ยาว...",
+                "q": "โจทย์สถานการณ์จำลองภาษาไทยที่ยาวและแตกต่างจากเดิม...",
                 "options": ["...", "...", "...", "..."],
                 "a": "...",
                 "detail": "..."
-            }
+            }}
         ]
         """
         
@@ -154,7 +159,7 @@ def generate_quiz():
             model='gemma-3-12b-it',
             contents=full_prompt,
             config=types.GenerateContentConfig(
-                temperature=0.8
+                temperature=1.0 # เพิ่มความสุ่มให้สูงขึ้นเพื่อความหลากหลายของคำตอบ
             )
         )
         
@@ -217,7 +222,7 @@ st.title(f"🎓 {config.get('page_title')}")
 if st.session_state.app_mode == "start":
     st.markdown(f"**{config.get('welcome_message')}**")
     if st.button(config.get('button_text'), use_container_width=True):
-        with st.spinner("AI กำลังสร้างข้อสอบเชิงวิเคราะห์ระดับยาก (ภาษาไทย)..."):
+        with st.spinner("AI กำลังสร้างข้อสอบเชิงวิเคราะห์ 24 ข้อ (ภาษาไทย)..."):
             if generate_quiz():
                 st.rerun()
 
