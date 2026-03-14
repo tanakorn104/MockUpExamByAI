@@ -70,7 +70,7 @@ def generate_quiz():
             final_instruction = f.read()
 
         # ส่งข้อมูลให้ Gemini 2.5 Flash
-       response = client.models.generate_content(
+            response = client.models.generate_content(
             model='gemini-2.5-flash',
             contents=f"เนื้อหาหลักสำหรับออกข้อสอบ:\n{content}",
             config=types.GenerateContentConfig(
