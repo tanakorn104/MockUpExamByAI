@@ -70,13 +70,15 @@ def generate_quiz():
             final_instruction = f.read()
 
         # ส่งข้อมูลให้ Gemini 2.5 Flash
-        response = client.models.generate_content(
+       response = client.models.generate_content(
             model='gemini-2.5-flash',
             contents=f"เนื้อหาหลักสำหรับออกข้อสอบ:\n{content}",
             config=types.GenerateContentConfig(
                 system_instruction=final_instruction,
                 temperature=0.8,
-                response_mime_type="application/json" # บังคับตอบเป็น JSON
+                response_mime_type="application/json",
+                # บังคับโครงสร้างเป็น Array ของ Object ให้เป๊ะๆ
+                response_schema={"type": "ARRAY", "items": {"type": "OBJECT"}}
             )
         )
         
