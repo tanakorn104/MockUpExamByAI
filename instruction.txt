@@ -16,7 +16,7 @@ Long Solution / Scenario Analysis (type: 'long') จำนวน 4 ข้อ
 
 Choice (10 ข้อ): ต้องเป็นคำถามลวง (Tricky) ตัวเลือกต้องดูสมเหตุสมผล เน้นความเข้าใจพฤติกรรมของฮาร์ดแวร์เชิงลึก
 
-Short (10 ข้อ): เน้นการอธิบายกลไกทางฮาร์ดแวร์ (Hardware mechanism level) เช่น การทำงานของ Interrupt, พฤติกรรมของ Flag registers, หรือเปรียบเทียบข้อดีข้อเสียของเทคนิคต่างๆ แบบกระชับ
+Short (10 ข้อ): เน้นการอธิบายกลไกทางฮาร์ดแวร์ (Hardware mechanism level) เช่น การทำงานของ Interrupt, พฤติกรรมของ Flag registers, หรือเปรียบเทียบข้อดีข้อเสียของเทคนิคต่างๆ แบบกระชับแต่ได้ใจความทางเทคนิค
 
 Long (4 ข้อ): ต้องเป็นโจทย์ระดับวิเคราะห์ลึก (Scenario-based & Calculation) แบ่งเป็น Part A (คำนวณ) และ Part B (สถานการณ์/การตัดสินใจออกแบบ) เหมือนข้อสอบวิศวะจริง เช่น:
 
@@ -24,11 +24,15 @@ Long (4 ข้อ): ต้องเป็นโจทย์ระดับวิ
 การคำนวณ Floating-Point: แปลงเลข หรือคำนวณผลลัพธ์พร้อมวิเคราะห์ Precision/Density Gap
 การวิเคราะห์ I/O: วิเคราะห์สถานการณ์คอขวดระหว่าง DMA แบบต่างๆ หรือผลกระทบของ Cycle Stealing ต่อ CPU Performance
 
-ส่วนคำเฉลย (a) และ คำอธิบาย (detail):
+ส่วนคำเฉลย (a) และ คำอธิบาย (detail) - ต้องเน้นความยาวและคุณภาพวิเคราะห์:
 
-ต้องเฉลยอย่างละเอียด เป็นขั้นเป็นตอน (Step-by-step)
+ต้องเฉลยอย่างละเอียด เป็นขั้นเป็นตอน (Step-by-step calculation) พร้อมแสดงที่มาของตัวเลขทุกชุด
 
-มีเหตุผลรองรับทางวิศวกรรมคอมพิวเตอร์ที่ชัดเจน อ้างอิงถึงโครงสร้างระดับบิต หรือพฤติกรรมของวงจร
+บทวิเคราะห์เชิงลึก (Mandatory): ในฟิลด์ 'detail' ต้องไม่อธิบายแค่สั้นๆ แต่ต้องวิเคราะห์ถึง 'Trade-off' หรือ 'ผลกระทบเชิงระบบ' เช่น หากเปลี่ยนตัวแปร X จะส่งผลเสียต่อประสิทธิภาพ Y อย่างไร
+
+มีเหตุผลรองรับทางวิศวกรรมคอมพิวเตอร์ที่ชัดเจน อ้างอิงถึงโครงสร้างระดับบิต พฤติกรรมของวงจร หรือข้อจำกัดทางสถาปัตยกรรม (เช่น บัสกว้างไม่พอ, การทำ Context Switch ที่แพงเกินไป)
+
+สำหรับโจทย์ Scenario ต้องอธิบายว่า "ทำไมแนวทางอื่นถึงด้อยกว่าในบริบทนี้"
 
 กฎเหล็กด้านรูปแบบ JSON (Mandatory):
 
@@ -36,16 +40,11 @@ Long (4 ข้อ): ต้องเป็นโจทย์ระดับวิ
 
 CRITICAL JSON FORMATTING: ห้ามใช้ raw newlines, carriage returns หรือ tabs ภายในค่าที่เป็น string (เช่น ในโจทย์หรือคำอธิบาย) หากต้องการขึ้นบรรทัดใหม่ให้ใช้รหัสสแตนดาร์ด '\n' เท่านั้น
 
-CRITICAL JSON ESCAPING RULE: ห้ามใช้เครื่องหมาย double quotes (") ซ้อนข้างใน string values เด็ดขาด (เช่น ในคำถามหรือตัวเลือก) ให้ใช้ single quotes (') แทน เช่น เขียนว่า 'DMA' แทนที่จะเป็น "DMA" เพื่อป้องกัน Error ในการ Parse ข้อมูล
+CRITICAL JSON ESCAPING RULE: ห้ามใช้เครื่องหมาย double quotes (") ซ้อนข้างใน string values เด็ดขาด ให้ใช้ single quotes (') แทน เพื่อป้องกัน Error ในการ Parse ข้อมูล
 
 โครงสร้าง JSON:
 [
-{"type": "choice", "q": "โจทย์", "options": ["A","B","C","D"], "a": "คำตอบที่ถูกต้อง", "detail": "คำอธิบายกลไกเชิงลึก"},
-{"type": "short", "q": "โจทย์อธิบายกลไก/เปรียบเทียบ", "a": "แนวคำตอบที่ถูกต้อง", "detail": "คำอธิบายเพิ่มเติม"},
-{"type": "long", "q": "โจทย์สถานการณ์วิเคราะห์ (Part A และ Part B)", "a": "วิธีทำแบบ Step-by-step", "detail": "เหตุผลประกอบการตัดสินใจออกแบบ"}
+{"type": "choice", "q": "โจทย์", "options": ["A","B","C","D"], "a": "คำตอบที่ถูกต้อง", "detail": "วิเคราะห์เจาะลึกว่าทำไมตัวเลือกนี้ถึงถูก และตัวเลือกอื่นลวงอย่างไรในระดับฮาร์ดแวร์"},
+{"type": "short", "q": "โจทย์อธิบายกลไก/เปรียบเทียบ", "a": "แนวคำตอบทางเทคนิคที่ครบถ้วน", "detail": "อธิบายกลไกการทำงานอย่างละเอียดและผลกระทบต่อประสิทธิภาพโดยรวม"},
+{"type": "long", "q": "โจทย์สถานการณ์วิเคราะห์ (Part A และ Part B)", "a": "วิธีทำแบบ Step-by-step พร้อมผลลัพธ์การคำนวณที่ชัดเจน", "detail": "บทวิเคราะห์เหตุผลประกอบการออกแบบเชิงสถาปัตยกรรม การประนีประนอม (Trade-off) และการแก้ปัญหาคอขวดในเชิงวิศวกรรม"}
 ]
-
-
-"CRITICAL JSON FORMATTING: Do not use raw newlines, carriage returns, or tabs inside JSON string values. If you need to format text, use standard escaped characters like \n."
-CRITICAL JSON ESCAPING RULE: 
-NEVER use unescaped double quotes (") inside your string values (for questions, options, answers, or details). If you need to quote something, use single quotes (') instead. For example, write 'DMA' instead of "DMA". This is absolutely mandatory to prevent JSON parsing errors.
