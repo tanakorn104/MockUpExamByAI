@@ -89,40 +89,46 @@ def create_export_file(quiz_data):
     buffer.seek(0)
     return buffer
 
-# --- ฟังก์ชันเจนข้อสอบ (User) ---
 def user_generate_quiz():
-    if not os.path.exists(DATA_FILE) or not os.path.exists(CONFIG_FILE):
-        return False, "ไม่พบข้อมูลส่วนกลาง กรุณาแจ้งแอดมินให้อัปโหลดไฟล์"
-        
-    with open(DATA_FILE, "r", encoding="utf-8") as f: content = f.read()
-    config = get_admin_config()
-    
-    final_instruction = f"""
-    คุณคืออาจารย์ผู้เชี่ยวชาญ หน้าที่คือสร้างข้อสอบ {config['num_q']} ข้อ 
-    จากเนื้อหาที่กำหนด ในรูปแบบ JSON เท่านั้น
-    ข้อกำหนด: คละประเภท (choice, short, long) 
-    คำสั่งพิเศษ: {config['custom_inst']}
-    รูปแบบ JSON:
-    [
-      {{"type": "choice", "q": "โจทย์", "options": ["A","B","C","D"], "a": "คำตอบ", "detail": "คำอธิบาย"}},
-      {{"type": "short", "q": "โจทย์เติมคำ", "a": "คำตอบ", "detail": "คำอธิบาย"}},
-      {{"type": "long", "q": "โจทย์อัตนัย/คำนวณ", "a": "วิธีทำละเอียด", "detail": "หลักการ"}}
-    ]
-    """
+    # 1. ระบุชื่อไฟล์ที่เราอัปโหลดขึ้น GitHub ไว้
+    pdf_filename = "final_content.pdf" 
+    instruction_filename = "instruction.txt"
+
     try:
+        # --- ส่วนการอ่านเนื้อหาจาก PDF ใน GitHub ---
+        content = ""
+        if os.path.exists(pdf_filename):
+            with open(pdf_filename, "rb") as f:
+                reader = PyPDF2.PdfReader(f)
+                for page in reader.pages:
+                    content += page.extract_text()
+        else:
+            return False, "ไม่พบไฟล์ final_content.pdf บน GitHub"
+
+        # --- ส่วนการอ่านคำสั่ง AI จากไฟล์ txt ใน GitHub ---
+        with open(instruction_filename, "r", encoding="utf-8") as f:
+            final_instruction = f.read()
+
+        # 2. ส่งข้อมูลให้ AI (ใช้ SDK ใหม่ gemini-2.5-flash)
         response = client.models.generate_content(
             model='gemini-2.5-flash',
-            contents=f"เนื้อหา: {content[:30000]}",
-            config=types.GenerateContentConfig(system_instruction=final_instruction, temperature=0.8)
+           contents=f"เนื้อหาบทเรียนสำหรับออกข้อสอบ: {content[:1000000]}", # จำกัดความยาวกัน Error
+            config=types.GenerateContentConfig(
+                system_instruction=final_instruction,
+                temperature=0.8
+            )
         )
+        
+        # 3. จัดการ JSON เหมือนเดิม
         clean_json = response.text.replace('```json', '').replace('```', '').strip()
         st.session_state.quiz_data = json.loads(clean_json)
         st.session_state.current_idx = 0
         st.session_state.user_answers = {}
         st.session_state.app_mode = "start"
         return True, "สร้างข้อสอบสำเร็จ!"
+
     except Exception as e:
-        return False, f"AI เจนข้อสอบพลาด: {e}"
+        return False, f"เกิดข้อผิดพลาด: {e}"
 
 # --- ตั้งค่า Session State ---
 if 'quiz_data' not in st.session_state: st.session_state.quiz_data = []
