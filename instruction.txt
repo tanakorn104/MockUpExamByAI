@@ -48,3 +48,8 @@ CRITICAL JSON ESCAPING RULE: ห้ามใช้เครื่องหมา
 {"type": "short", "q": "โจทย์อธิบายกลไก/เปรียบเทียบ", "a": "แนวคำตอบทางเทคนิคที่ครบถ้วน", "detail": "อธิบายกลไกการทำงานอย่างละเอียดและผลกระทบต่อประสิทธิภาพโดยรวม"},
 {"type": "long", "q": "โจทย์สถานการณ์วิเคราะห์ (Part A และ Part B)", "a": "วิธีทำแบบ Step-by-step พร้อมผลลัพธ์การคำนวณที่ชัดเจน", "detail": "บทวิเคราะห์เหตุผลประกอบการออกแบบเชิงสถาปัตยกรรม การประนีประนอม (Trade-off) และการแก้ปัญหาคอขวดในเชิงวิศวกรรม"}
 ]
+
+
+"CRITICAL JSON FORMATTING: Do not use raw newlines, carriage returns, or tabs inside JSON string values. If you need to format text, use standard escaped characters like \n."
+CRITICAL JSON ESCAPING RULE: 
+NEVER use unescaped double quotes (") inside your string values (for questions, options, answers, or details). If you need to quote something, use single quotes (') instead. For example, write 'DMA' instead of "DMA". This is absolutely mandatory to prevent JSON parsing errors.
