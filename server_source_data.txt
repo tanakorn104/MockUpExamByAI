@@ -1,0 +1,408 @@
+LOGO
+Aj. 
+Sek
+Chapter 
+7
+ 
+Input/Output
+Computer
+ 
+Architecture
+Contents
+External Devices & I/O Modules
+1
+3 
+Methods of I/O Control
+2
+3
+External 
+Inter
+connection
+ 
+standard
+s
+4
+Chapter
+7
+: Input/Output
+I/O Channels and Processors
+2LOGO
+
+External Devices & 
+I/O Modules
+Input/Output Module•I/O Module นับเป็นองค์ประกอบหลักของสถาปัตยกรรมคอมพิวเตอร์ (ร่วมกับ Processor และ Memory)•I/O Module เป็นตัวเชื่อมระหว่าง I/Odevices กับ System Bus (ที่เชื่อมต่อกับ CPU และ Memory) เหตุผลที่ต้องมี I/O Module เนื่องจาก
+Chapter
+7
+: Input/Output4I/O devices หรือ Peripheral devices มีอยู่เป็นจ านวนมากที่มีการ
+ท างานแตกต่างกั
+น
+Transfer rate ของ I/O devices แตกต่างจาก Processor มากPeripheral devices มี
+รูปแบบโครงสร้างข้อมูลหรือขนาดของ wordแตกต่างจากที่ Computer ใช้หน้้าทีี่ (เข้า-ออก ขอยู่ใน EX-SSD /นอก Exเพา□ค.เร้วใในการส่งผ่านข□Fอุปกรณ์ต่อพ่วง Ex. เมมาสส์ ดโครงสร้างเสริม, ข้างGeneric Model of I/O Module
+Chapter
+7
+: Input/Output
+ติดต่อกับ
+ 
+Processor 
+และ 
+Memory 
+ผ่าน 
+System bus
+ติดต่อกับ
+ 
+I/O devices 
+และ
+ปรับการท างานให้เข้ากัน
+5→=BUSθ
+ExternaloDevicesExternal Devices
+1.
+มนุษย์สามารถอ่านได้ (Human Readable) เช่น Monitor, Printer, Speaker, Webcam, etc.
+2.
+เครื่องสามารถอ่านได้ (Machine Readable) เช่น Sensor, Motor, Handy drive, Undo card, etc.
+3.
+การสื่อสาร (Communication)เช่น LAN, Modem, WirelessLAN, Firewire, etc.
+External device connected to I/O module 
+is 
+“
+peripheral device
+”
+.
+Chapter
+7
+: Input/Output6% -> คอม 52 มนุษส่่งออกมาแบผมนุุษย์เข้าใจ(ฟัง,อ่านมนุษย์มองแแล้วไม่เห็นไฟล์ข้างใน ตต้อง+> ครม >> เครื่องจักร / สื่อบันflashdrive=เกับเป็นประจุไฟฟ้า-> ใให้คอมอ่าน_·- รับ-ส่งสัญญาณไไฟฟฝ้ากกับคอมโnesisคอม /เครือข่่าย=> คอยยิ่งรับส่งข้อมู□ー&ตัวกลางคออยสส่งข้อมูลข้าExternal Device Block Diagram
+Chapter
+7
+: Input/Output
+Ready/
+not ready
+สัญญาณไฟฟ้า 
+<>
+พลังงานอื่
+น
+8 
+–
+ 
+16 
+bit
+ 
+buffer
+7Ƶ&อุปกรรณ์ภายน1/0module< วกแก้ไหมาไฟฟ้า,1/0ส่่งให้ เพราะข้างในทําไวกว่าข้างนอกกเลยเคจองทีอกา·เกินขข้อมูลชจะะไดด้ไไม่ตกหลันโคอแปลเกลับไป -มรับคําสสิ่ง/รายุราชพระ:แปลง ไม่นาน forest"ไอออกจอคอม·เสื ้องเเข้าEnvironment(เสียง ,ภาThe 
+I
+nternal 
+R
+eference 
+A
+lphabet (IRA)
+Chapter
+7
+: Input/Output
+1001011
+?
+8ż
+by Ppbabyb,baPe∞IRA Control Characters
+Chapter
+7
+: Input/Output
+9คาสิ่งงทแต่เรามองไม่เ4Haad(C-cursorre.alsa)คมม C //หัวพพิมพ์ปริ①FormatControl(inum/nan)_S (Backspace) :เหมือนกดBackspacถอย2ไป1ตน.HT(HorizontalTab):infowedTabเลื่อนC ไไป1 t⊥5 ( LineFeed) :ขึ้นบรรทิตIT Svertical T ab) : ลงมาตามแนวตั้งจจากกที่It storm feed) : ใหห้เครืื่่องปริ้นต้นกระะดาาษเพื่อCR Carriage Return) : ไปทที่ต้นบรรหัดของบรรlI/O Module Functions1)การควบคุมและการจับเวลาเพื่อ
+ประสานงานให้ข้อมูลสามารถไหลผ่านระหว่างทรัพยากรภายในกับอุปกร
+ณ์
+ภายนอกได้(inside module <-> outside device) เช่น การถ่ายเทข้อมูลจาก External Device -> ProcessorI.Processor ติดต่อ I/O module เพื่อตรวจสอบสถานะของอุปกรณ์ที่ต้องการใช้งานII.I/O module ส่งสถานะกลับมาให้III.ถ้าสถานะเป็น ready, Processor จะสั่ง I/O module ให้ถ่ายเทข้อมูลIV.I/O Module ได้รับข้อมูลชุดแรกจาก I/O deviceV.I/O Module ถ่ายทอดข้อมูลต่อไปให้ Processor
+Chapter
+7
+: Input/Output10Module Functions2)การสื่อสารระหว่าง Process•การถอดรหัสค าสั่ง (Command decoding)•การแลกเปลี่ยนข้อมูล (Data exchange)•การรายงานสถานะ (Status reporting)•การรับรู้ที่อยู่ (Address recognition)3)การสื่อสารระหว่าง I/O device  I/O module4)การจัดการ Buffer 
+Data buffering 
+เพราะ 
+CPU
+ 
+และ 
+Memory
+มีความเร็วสูงมาก5)การตรวจสอบข้อผิดพลาด 
+E
+rror detection 
+แล้วรายงานให้ 
+Processor
+ 
+รู้
+Chapter
+7
+: Input/Output11เลยเก็บไว้ที่ Buffeรอส่∞I/O Module Structure
+Chapter
+7
+: Input/Output
+12∞↓เป็นตตัวกลคุุยกับ Cระหว่าง CPU -I/deviceรับ-สพักข้อมูล Buffข้อส่่งข้อมูลไป -รับสถานะจากอุปกสถานะ /&Ex.หมึกหมด!คําสั่งตตั้งคค่าC/Ready,NotReady4 กmuvrmommn↓" ส่งสัญญาณไปคุมการททํางานอ1"ซื ้อเด็บเ3 สั่งเเริ่มพระะบุตําแหเชื่อมได้หอุปกรรับAddr,Coว่่าให้ทําอต้องกาาารทําอะไRead/Writeแล้้วสั่งคนต่LOGO
+
+3 
+Methods of I/O 
+Control
+
+3 
+Methods of I/O 
+Control
+3 Input/Output Techniques
+Chapter
+7
+: Input/Output
+3 
+Input/Output
+techniques
+
+DMA
+
+Interrupt
+driven
+
+Programmed
+14→DirectmemoryAccess3 
+Techniques of I/O Control
+Chapter7: Input/Output
+1.
+การควบคุม
+ 
+I/O 
+ด้วยโปรแกรม
+ (Programmed I/O)
+Processor 
+จะประมวลผลโปรแกรมที่เป็นการออกค าสั่งเกี่ยวกับก
+าร
+ท างาน 
+I/O 
+โดยตรง เมื่อ 
+Processor 
+ออกค าสั่งเสร็จ จะต้องรอ
+จน
+กว่า
+การตอบสนองต่อค าสั่งจะสมบูรณ์
+2.
+การควบคุม 
+I/O 
+ผ่าน
+ 
+Interrupt (Interrupt-driven I/O)
+Processor 
+จะออกค าสั่ง 
+I/O 
+แล้วไปประมวลผลค าสั่งอื่นต่อไป
+เมื่อ 
+I/O module 
+นั้นท างานเสร็จแล้วก็จะส่ง 
+Interrupt 
+มาบอกให้รู้
+3.
+การเข้าถึงหน่วยความจ าหลักโดยตรง (Direct memory access: DMA) 
+วิธีนี้ 
+I/O Module 
+และ 
+Memory 
+จะแลกเปลี่ยนข้อมูลกันโ
+ดยตรง15-> สั่งงาน -> รอจนเส↓เริ่มงานใง่าย, ไไม่ซับซ้อน, CPU เสีสั่ง-> สั่งงาน - ทํางา↓DMA ทําใ↑⑦↓↓Interrupt เข้า(บอกทุกท่างานอื่④รับเรื่อง, โโหลด↓ _โหลดใหห้เลเสร็จหมDMA ถึงจ⑤ททําร้านอืInterrupt↓CPU ไม่ต้องรอแต่่ต้องมารัCPU อิสระ,เร็ว,แต่ต้อง + DMA + ซถ้างานใหญ่-เสียเเข้ามมาเพิ่มแพ(Interrupt208)3 Techniques of I/O Control
+Chapter
+7
+: Input/Output
+No
+ 
+Interrupt
+Use of Interrupt
+I/O <
+-
+> Memory by 
+ProcessorProgrammed I/OInterrupt-driven I/O
+Direct I/O <
+-
+>
+ 
+Memory 
+TransferDirect memory access
+163 
+Techniques of I/O Control
+Chapter7: Input/Output17①สั่งให้อ่านคสัั่งททั้ง bloสั่่ง อ่น่าน สัไปททําอย่่าง□สั่งเสิร∞d*ser/8เตรียมข้อมูลเติร์จ ↑&tw(Read+Write s↓oblo eอ่Dav0 ถึเรี·Suyπ·-> ลูปจน, Readมาททําอัched ว่าเรียบรร้อยมั้(ไม่ต้องย้ายขข้อมや‰φƵ=··dท่่าตถ้ายังงไม่เรอโดนสะกิดให=วนไปยืนรอใหจนครบทุกคํายืนเฝสะกิดเรี
+ 
+Programmed I/O•เมื่อ Processor ประมวลผลโปรแกรมและพบค าสั่งเกี่ยวกับ I/O ก็จะเลือกค าสั่งที่เหมาะสมส่งไปยัง I/O module โดยเป็นการควบคุมด้วยโปรแกรม•I/O module จะท าตามค าสั่ง จากนั้นจะเปลี่ยนค่าที่เหมาะสมใน I/O status register •เมื่อท างานเสร็จเรียบร้อย I/O module จะอยู่เฉยๆ เป็นหน้าที่ของ 
+Processor 
+จะต้องค
+อย
+ตรวจสอบสถานะเอง ว่า 
+I/O module 
+ท างานเสร็จหรือยัง
+Chapter7: Input/Output18
+I/O Commandในการประมวลผลค าสั่งเกี่ยวกับ I/O, Processor จะต้อง
+ก าหนด
+address ของ I/O module และ External Device และ
+ค าสั่งที่ต้องการให้ท า ซึ่งแบ่งได้ 4 ประเภท คือ
+1.
+การควบคุม 
+(Control): กระตุ้นให้ device พร้อมท างาน
+2.
+การทดสอบ 
+(Test): ทดสอบสถานะของ I/O module และ device
+3.
+การอ่านข้อมูล 
+(Read): จาก device ->data register -> data bus
+4.
+การบันทึกข้อมูล 
+(Write): data bus -> device
+Chapter7: Input/Output19
+ 
+Interrupt Driven I/O•ปัญหาจากวิธีแรกคือ Processor ต้องรอเป็นเวลานาน และยังต้องตรวจสอบสถานะ I/O module อยู่ตลอด จึงท าให้
+Chapter7: Input/Outputหมายเหตุสัญลักษณ์ “
+”หมายถึง 
+ประสิทธิภาพโดยรวมของระบบ
+20Interrupt Process1)I/O device ส่ง 
+Interrupt signal -> Processor2)Processor ประมวลผลค าสั่งในโปรแกรมท าก าลังท างานอยู่, แล้วจึงตอบสนอง Interrupt3)Processor ตรวจสอบ Interrupt signal แล้วจึงส่ง ack signal ไปยัง device ต้นทาง4)Processor ท า 
+Interrupt routine: บันทึกข้อมูลของโปรแกรมที่ก าลังประมวลผล ประกอบด้วย  สถานะการท างาน (Program status word: PSW)  ต าแหน่งของค าสั่งต่อไป (Program counter: PC)5)Process ดึงค าสั่งแรกของ Interrupt เพื่อเตรียมเริ่มท างาน
+Chapter7: Input/Output21ผ่านI/o-modul
+ตอบรับว่าได้ขข้อมูลแล้ว,ถู∞Interrupt Process6)Processor บันทึกข้อมูลเกี่ยวกับโปรแกรมที่ประมวลผลค้างไว้ลงใน register ต่างๆ ลงในstack7)เริ่มท างานของโปรแกรม Interrupt
+8)
+เมื่อเสร็จแล้ว 
+Processor 
+จะคืนค่าให้แก่ 
+register (from step 
+6
+)
+9)
+คืนค่าให้แก่ 
+PSW 
+และ 
+PC (from step 
+4
+)
+Chapter
+7
+: Input/Output22Interrupt process
+Chapter
+7
+: Input/Output
+
+
+
+
+
+
+
+
+23Changes in Memory and Register for an Interrupt
+Chapter
+7
+: Input/Output24④bufferโดนสะกิ(เอเท่งเกีบน่าต่่อไปจะะทําใสต่อจาก·ดึงกลื้นค้างไช้มาเกิบใReplace6ΛEerruptY4, 6 พัักของชั่วคราว ° Nerf ปกตน. ถัด8,9รคนส:ก℃ให้เป
+√↑สัตตอนโโดนสะกิต · ข้อมู↓เสร็จแล#ควเก็igniinOeNacee+3R0ไปมักไวOpeControlstack⑤สะกิดตอนทํางานหลังจากโดนสะก
+ 
+Direct Memory Access (DMA)
+ข้อเสียของ 
+2 
+วิธีแรก มีดังนี้•อัตราการถ่ายเทข้อมูลถูกจ ากัดด้วยความเร็วที่ Processor ทดสอบแล้วให้บริการแก่ device•Processor จะต้องประมวลผลค าสั่งจ านวนหนึ่งส าหรับ data transfer แต่ละครั้งทั้ง 2 ข้อนี้ท าให้ โดยมี 2 ประเด็นที่ต้องพิจารณา คือ•การท างานของ Processor วิธีแรกไม่มี •Data transfer rate วิธีที่ 2 ไม่มี 
+Chapter
+7
+: Input/Output25
+ต้องแบ่งเวล∞DMA Function•วิธีการ DMA นี้
+ต้องมี
+ 
+DMA module 
+เพิ่มใน
+ 
+system bus เพื่อให้มีความสามารถในการควบคุมการท างานแบบ Processor •DMA module สามารถ transfer ข้อมูลจาก Memoryผ่าน system bus ได้ 2แบบ คือ 
+1)
+ท างานในจังหวะที่ 
+Processor 
+ไม่ใช้งาน
+2)
+ท างานโดยบังคับให้ 
+Processor 
+หยุดท างานชั่วคราวเรียกว่า การแย่งชิงวงรอบการท างาน (cycle stealing) ซึ่งวิธีนี้ได้รับความนิยมมากกว่า•เมื่อ Processor ต้องการอ่าน/บันทึกข้อมูล ก็จะส่งค าสั่งไปยัง DMA module จากนั้นจึงเป็นหน้าที่ของ DMA •เมื่อ transfer เสร็จ DMA module จะส่ง Interrupt แจ้ง Processor
+Chapter
+7
+: Input/Output26*AddHardwareƵทําใให้หTypical DMA Module Diagram
+Chapter
+7
+: Input/Output
+จ านวน 
+word 
+ที่จะ 
+transfer
+word 
+ที่จะ 
+transfer
+address
+เริ่มต้นของ 
+word
+ที่จะ 
+transfer
+address
+word 
+ที่จะ 
+transfer
+27เพิ่↓ŷ{ACW บอกว่ารับเรื่อDMA &Interrupt Breakpoints During Instruction Cycle
+Chapter
+7
+: Input/Output28รอบการทํางาน1คําƵvosCPU
+ถึงคําสสั่ง ถอตรหััสคําสั่งดึงข้อมูล ปประสะกิดได้หลังคําสั่งจƵƵไม่งั้นขข้อมูลอาจฟัง//แทรกกได้ตามที่่ชี้ (แค่ยืมBUS 1Clooko) มาส่DMA Configurations (
+1
+)
+•
+Single Bus, Detached DMA controller•Each transfer uses bus twice•I/O to DMA then DMA to memory•CPU is suspended twice
+Chapter
+7
+: Input/Output
+29systemBus↓①Ƶ1รูปแบการเชื่อมตต่อDพื ้นฐฐาน&- แยกเดียวๆๆ ไไม่รรวมกับช้าทีบัสเติ้นเDMA แยกตััวอิสเหมือนทางเดดินแคบๆทางเดียวใครจะคถููกสุด, คอขย้าย1ชใช้ bus2รอกก็ผ่่านทา(CPUโดนเบรคบ่อ⑦ไปเอาของ②เอาของไปเกีー-> หยุดให้ 2 รDMA Configurations (
+2
+)
+•
+Single Bus, Integrated DMA controller•Controller may support >1 device•Each transfer uses bus once•DMA to memory•CPU is suspended once
+Chapter
+7
+: Input/Output
+30②รวมกับ"ดีขƵแก้คอขว·-1 เส้DMA รวมกับI/O -> DMA ดัก ตามช่องที่เสียบได้DMA, ตัวว ดู#ได้หลายตตัว (ปรระหย้าย-ใช้BU1_:/0ส่่งให้ DMA ส่วนตัว ไไม่ใเอาไปเก็บยังตต้องผผ่านหยุ1 รอDMA Configurations (
+3
+)
+Chapter
+7
+: Input/Output
+•
+Separate I/O Bus•Bus supports all DMA enabled devices•Each transfer uses bus once•DMA to memory•CPU is suspended once31③หลัโหดสุθเชื่่อมระหว่่าง 2ถนนสายรอง
+รองβสําหรับIรองรับได้หลาย/0 อยากได้้เเพิ่มก็ขย&e prisueos/oeDMA* เส้นหลลักกใช้แหยุุดให้1 ครัLOGO
+
+I/O Channels 
+& Processor
+I/O Module Evolution1)Microprocessor-controlled devices2)Programmed I/O controller3)Interrupt driven I/O controller4)Direct Memory Access5)I/O channel (Module is enhanced to become a processor)6)I/O processor (Module has a local memory)
+Chapter
+7
+: Input/Output33d-> CPU ทําเองหมด คุม I/O เวิวัฒนาการ/o Moduเน้น "ลลดภาระของCPU-2 มีี I/8Module-เป็นนตัวกลางง , CPUสั่□-> มี Interrupt ทําเสร็จค่อยมาเรีย-> DMA อ่าน I/O และเขียน Memory ได้เลย ไม่ผ่าน-> 10 เป็น Processor เอง มีชุดค่าส่งของ<สําหรับ/8 เCPU แค้สส่งรายกการว่าตต้องททําอะะไร↓&LocalMemoryvestiaisเหมือนเป็น คอมเหมือนจ้างบริษัทลูกมารCPU แทUไม่ตต้อเ1I/O Channels•I/O devices getting more sophisticated•e.g. 3D graphics cards•CPU instructs I/O controller to do transfer•I/O controller does entire transfer•Improves speed▪Takes load off CPU▪Dedicated processor is faster
+Chapter
+7
+: Input/Output34ลํ้า+ซับซ้↓⑤σ-> สั่งงานแบบไม่ต้องลงดีเทล, ให้ Program จัดการ10 เหมาทําเองหมดต้น -> จบ ข้อมูลจาก Mem - GPU, ทุม Cเร้วมาลดภาระCPUชาญ -> ไวกข่V/Cchannelสร้าง,ออกแบบ เพื่่อ "งานรับสสั่ง &จัดการข้อมูล"I/O Channel Architecture
+Chapter
+7
+: Input/Output35↓รับสส่งข้MultitaskinglbdeIsystemBusพร้อมกันn"สลัมคิชืรัรับสส่งข้อมู
+เน้นคุยทีละคน, เ}↓↓- รับสสิ่งหลลาย ๆตัรับคํารับค)ที่เหลือต้องเหมาะกับอุปก·ทํางานช้า/ปานกล{Ex.Weyboard,Mouseเหมาะกับอุปกรณ์เเร็วๆ, ส่่งข้อมููลก้อนใหญ่่ๆ ซEx.SSD,MDD,dPUแบบสลับคคอม1 เครื่่องมัก#Ƶหลายๆ คนพร้อมกLOGO
+
+External Interconnection 
+Standards
+The most widely used external interface standards of I/O1)USB2)Firewire serial bus3)SCSI4)InfiniBand5)PCI Express6)SATA7)Ethernet8)Wi-Fi
+Chapter
+7
+: Input/Output37Ƶ2 ยอดฮิUniversal Serial Bus -> สายชาร์จนhismida-> เริ่มจาก Apple เร็ว +นิ่งกว่า USB แต่ตายไปแล้ว แม้คนิยมสกัซ-> เคยฮิตในเครื่อง server - สามารถเอา HDD/ scanner ต่อกันเป็นรถไฟยาวๆ ได้ ตามม่เห้นแลƘ-> ท็อปในวงการเครือข่าย - เร็วมาก +หน่วงตํ่า - ใช้กับ Super computer / Data Center ใหญ่ ๆ (ให้ ServerStorage ทางด่วนเรวPCle -> ทางด่วนสายหลักบนเมนบอร์ด > ช่องเสียบให้ถ่ายโอนข้อมูลมหาศาล GPU, SSD,-> ใช้เสียบ HDD/SSD กับเมนบ-> LAN เสถียร + ใช้ทั่Netwarkf-> เน็ตไร้สThe most widely used external interface standards of I/O
+Chapter
+7
+: Input/Output38Firewire serial bus•Another name: IEEE 1394•An interface standard for high-speed serial bus•Developed by Apple, widely used later•Ex: digital camcorderSCSI•Full name: small computer system interface•A common standard for connecting I/O devices, •Ex: disk, modem, printerInfiniBand•An I/O specification aimed at the high-end server market•A computer networking communications standard•Ex: IBM zEnterprise series
+สัก็□Ƶlaunchกล้องวิดDigitalสัญลัUSB
+Chapter
+7
+: Input/Output39•An industry standard that establishes specifications for cables, connectors, and protocols for connection, communication, and power supply between computers and devices.•Full name: Universal Serial Bus•Widely used for peripheral devices•Slow speed devices : mouse, keyboard•High speed devices : printer, disk driveครอบจักรวา5 หน้้าที่หลัก 3 ปรー· เชื่อมต่อ -> เชื่อมป๊ป9~- อุปกรณ์์ต่อ·สื่อสาร > รับ-ส่งข้อมูลผ่านคอม· จ่ายไฟ-> สแไฟได้,แแบบที่ชาร์จแบตUSB
+Chapter
+7
+: Input/Output40
+USB
+Chapter
+7
+: Input/Output41
+Chapter7: Input/Output42
+USB
+-
+CChapter7: Input/Output43
+_->มันไข้ขาฟินก๊าลยเสียบด้านไหนUSB-S↑Ƶ~สิ่งข้อ0 ไฟไม่มีขานี้ 4 ชาร่จะไดคุุยกับอุปกรณ์ (หวาย/คว่า)/เสียบออะไรไว้เชื่อมกับอเก่่สํารองเผื่อฟังกิชใช้ตอนเสีƘ1Ƶ7 - รับข้ตัวแปลƵEthernet
+Chapter
+7
+: Input/Output44•A family of wired computer networking technologies commonly used in LAN, MAN, and WAN•Ethernet was developed at Xerox PARC between 1973 and 1974. It was commercially introduced in 1980 and first standardized in 1983 as IEEE 802.3. •Direction: higher bit rates, a greater number of nodes, and longer link distances, but retains much backward compatibility. •Ethernet evolution•1983: 10 Mbps (megabit per second, million bits per second)•1995: 100 Mbps•1998: 1 Gbps (gigabit per second, billion bits per second)•2003: 10 Gbps•2010: 40 Gbps and 100 Gbpsบ้าน /offiเมืองง ประเทศ/ข้ามประเー…□∞⼀ขึ้นทะเบียนมาตรฐานสากลL&ส่่งข้อมููลเรเชื่่อมคอม/อุปกรณ์ได้เยอะขึ้นในลากสายไกลขึ้นแต่สัญญาตล ไม_*mussosservesion**_FastEthernet-- ไม่ค่อยาห้นตามบ้าน (อยู่ตาม server ขนาดใหญ่/DataChapter7: Input/Output45The original Ethernet implementation: shared medium, collision-prone. All computers trying to communicate share the same cable, and so compete with each other.
+ Modern Ethernet implementation: switched connection, collision-free. Each computer communicates only with its own switch, without competition for the cable with others.
+Comparison between original Ethernet and modern Ethernetƴα&ปัจจุทุกคนต้องแแชร์สายร่ยุุคบุกเใช้hเป็นศูนย์กลา(startopology)_↓
+ชนกัน -> พอบังคับยทีละคน -ชƘ%* จําได้ว่าคอมไหนเเสี้ยเช่น Aอยากสส่งใหδ=> สร้างช่องAtoล่่มทงวคยพร้อมกัน7!ถ้าลายเมนตรงกลางขาด6 พังไม่กระทบคนอไม่กวน-LOGO
+End of chapter, any question?
+ให้Al:ให้ยามd-> ประมวลผลเป็นอีกอย①/ขึ้นนกับ-สั่่งต้น-ปลคนซิG / @5 โรงงา①②②
