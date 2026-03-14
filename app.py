@@ -121,38 +121,41 @@ def generate_quiz():
         with open("instruction.txt", "r", encoding="utf-8") as f:
             final_instruction = f.read()
 
-        response_schema = {
-            "type": "ARRAY",
-            "items": {
-                "type": "OBJECT",
-                "properties": {
-                    "type": {"type": "STRING"},
-                    "q": {"type": "STRING"},
-                    "options": {"type": "ARRAY", "items": {"type": "STRING"}},
-                    "a": {"type": "STRING"},
-                    "detail": {"type": "STRING"}
-                },
-                "required": ["type", "q", "a", "detail"]
+        # นำ instruction ไปรวมกับ content และกำชับให้ตอบเป็น JSON เพราะ Gemma 3 ไม่รองรับ JSON Mode
+        json_format_prompt = """
+        สำคัญมาก: กรุณาตอบกลับเป็นรูปแบบ JSON Array เท่านั้น ห้ามมีข้อความอธิบายอื่นปะปน โดยให้มีโครงสร้างดังนี้:
+        [
+            {
+                "type": "CHOICE หรือ SHORT",
+                "q": "คำถาม",
+                "options": ["ตัวเลือก1", "ตัวเลือก2", "ตัวเลือก3", "ตัวเลือก4"],
+                "a": "คำตอบที่ถูกต้อง",
+                "detail": "คำอธิบาย"
             }
-        }
-
-        # -------------------------------------------------------------
-        # จุดที่ 1: นำ instruction ไปรวมกับ content (แก้บั๊ก 400 INVALID_ARGUMENT)
-        full_prompt = f"{final_instruction}\n\nเนื้อหา:\n{content}"
+        ]
+        """
+        full_prompt = f"{final_instruction}\n{json_format_prompt}\n\nเนื้อหา:\n{content}"
 
         response = client.models.generate_content(
-            model='gemma-3-12b-it',  # <--- จุดที่ 2: เปลี่ยนโมเดลเป็น B12
-            contents=full_prompt,    # <--- ใส่ prompt ที่รวมแล้ว
+            model='gemma-3-12b-it',
+            contents=full_prompt,
             config=types.GenerateContentConfig(
-                temperature=0.8,
-                response_mime_type="application/json",
-                response_schema=response_schema
-                # นำ system_instruction ออก
+                temperature=0.8
+                # นำ response_mime_type และ response_schema ออก เพราะโมเดลไม่รองรับ
             )
         )
-        # -------------------------------------------------------------
         
-        st.session_state.quiz_data = json.loads(response.text.strip(), strict=False)
+        # ทำความสะอาดข้อความเผื่อ AI ใส่ tag markdown มาด้วย
+        res_text = response.text.strip()
+        if res_text.startswith("```json"):
+            res_text = res_text[7:]
+        elif res_text.startswith("```"):
+            res_text = res_text[3:]
+        if res_text.endswith("```"):
+            res_text = res_text[:-3]
+        res_text = res_text.strip()
+        
+        st.session_state.quiz_data = json.loads(res_text, strict=False)
         st.session_state.user_answers = {}
         st.session_state.app_mode = "quiz_running"
         return True
