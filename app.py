@@ -108,30 +108,36 @@ def generate_quiz():
 
         current_time_seed = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
 
-        # บังคับการสอบแบบ Open Book และ Higher-Order Thinking
+        # บังคับการสอบแบบ Open Book ที่เน้นการคำนวณ (Calculation) และการวิเคราะห์ (Analysis)
         user_prompt = f"""
-        สร้างข้อสอบชุดใหม่โดยอ้างอิงจากข้อมูลต่อไปนี้ (Seed: {current_time_seed}):
+        สร้างข้อสอบชุดใหม่ (24 ข้อ) โดยอ้างอิงจากเนื้อหาบทที่ 7 และ 8 (Seed: {current_time_seed})
+        
+        เป้าหมายหลัก: เน้นการคำนวณ (Calculation) และการวิเคราะห์เชิงลึก (Deep Analysis)
+        
+        ข้อกำหนดเนื้อหาเฉพาะ:
+        1. "ห้ามถามนิยาม" ที่เปิดหนังสือหาคำตอบได้โดยตรง
+        2. ทุกข้อต้องมี "ข้อมูลทางเทคนิค" ประกอบ เช่น:
+           - เลขฐานสอง (Binary Strings) สำหรับ Booth's Algorithm หรือ Twos Complement
+           - ค่าทศนิยมที่ต้องแปลงเป็น IEEE 754 (Single Precision)
+           - พารามิเตอร์ CPU (Clock Speed GHz, Bus Width, Memory Latency) สำหรับการคำนวณ I/O throughput หรือ CPU Utilization
+           - จำนวน Register และ Opcode สำหรับการคำนวณบิตใน Instruction Format
+        3. โครงสร้าง JSON:
+           - ข้อ 1-8 (CHOICE): โจทย์สถานการณ์ที่ต้องคำนวณหรือวิเคราะห์ก่อนเลือกคำตอบ ตัวเลือกหลอกต้องมาจากการคำนวณที่ผิดขั้นตอน
+           - ข้อ 9-16 (SHORT): โจทย์สั่งให้ "แสดงขั้นตอนการคำนวณ" (Step-by-step calculation) เช่น Booth's Algorithm แต่ละรอบ หรือการแปลง Floating Point
+           - ข้อ 17-20 (SHORT): โจทย์วิเคราะห์เปรียบเทียบประสิทธิภาพสถาปัตยกรรม (เช่น ผลกระทบของ Cycle Stealing ต่อ CPU performance)
+           - ข้อ 21-24 (SHORT Case Study): โจทย์บูรณาการขนาดใหญ่ Part A (การออกแบบ/คำนวณ) และ Part B (การวิจารณ์ผลกระทบเชิงสถาปัตยกรรม)
+        4. ฟิลด์ 'detail': ต้องแสดง "วิธีทำ" (Step-by-step) อย่างละเอียดเป็นภาษาไทย
 
-        กฎเหล็กการออกโจทย์ Open Book:
-        1. จำนวนข้อสอบ: 24 ข้อ (ห้ามขาด)
-        2. ทุกฟิลด์ต้องเป็นภาษาไทย 100%
-        3. "ห้ามถามนิยาม" เพราะเปิดหนังสือตอบได้ โจทย์ต้องเป็น Scenario-based ที่ต้องวิเคราะห์ก่อนตอบเท่านั้น
-        4. โครงสร้าง JSON:
-           - ข้อ 1-10 (CHOICE): สถานการณ์จำลองยาวๆ ที่มีตัวเลือกวิเคราะห์เชิงลึก
-           - ข้อ 11-20 (SHORT): โจทย์วิเคราะห์ขั้นตอนการคำนวณหรือเปรียบเทียบเชิงเทคนิค
-           - ข้อ 21-24 (SHORT Case Study): โจทย์บูรณาการขนาดใหญ่ แบ่งเป็น 'Part A: การออกแบบ/คำนวณ' และ 'Part B: การวิจารณ์ประสิทธิภาพ'
-        5. ฟิลด์ 'detail' ต้องอธิบายตรรกะวิธีคิดแบบละเอียด (ทำไมถึงเป็นคำตอบนี้)
-
-        เนื้อหา:
+        เนื้อหาประกอบ:
         {content}
         """
 
         response = client.models.generate_content(
-            model='gemini-3.1-flash-lite-preview', # ใช้ชื่อโมเดลที่ถูกต้องตามเอกสาร Google
+            model='gemini-3.1-flash-lite-preview',
             config={
-                "system_instruction": system_instruction_text, # แยก Instruction ออกมาตามตัวอย่างที่คุณให้มา
+                "system_instruction": system_instruction_text + "\nYou are an expert Computer Architecture Professor. Focus on mathematical derivations and performance analysis. Always output in Thai.",
                 "temperature": 1.0,
-                "response_mime_type": "application/json" # เปิดใช้ JSON Mode ได้ทันที
+                "response_mime_type": "application/json"
             },
             contents=user_prompt
         )
@@ -164,8 +170,9 @@ st.title(f"🎓 {config.get('page_title')}")
 
 if st.session_state.app_mode == "start":
     st.markdown(f"**{config.get('welcome_message')}**")
+    st.info("💡 เวอร์ชันอัปเดต: เน้นโจทย์เชิงคำนวณ Booth's, IEEE 754 และการวิเคราะห์ CPU Utilization")
     if st.button(config.get('button_text'), use_container_width=True):
-        with st.spinner("Gemini 3.1 กำลังสร้างข้อสอบวิเคราะห์ระดับ Open Book 24 ข้อ..."):
+        with st.spinner("Gemini 3.1 กำลังสร้างข้อสอบเชิงคำนวณระดับสูง 24 ข้อ..."):
             if generate_quiz():
                 st.rerun()
 
@@ -182,7 +189,7 @@ elif st.session_state.app_mode == "quiz_running":
             if str(q.get('type')).upper() == "CHOICE":
                 temp_answers[i] = st.radio(f"คำตอบข้อ {i+1}", q.get('options', []), key=f"ans_{i}", index=None, label_visibility="collapsed")
             else:
-                temp_answers[i] = st.text_input(f"คำตอบข้อ {i+1}", key=f"ans_{i}", placeholder="พิมพ์การวิเคราะห์หรือผลลัพธ์...", label_visibility="collapsed")
+                temp_answers[i] = st.text_input(f"คำตอบข้อ {i+1}", key=f"ans_{i}", placeholder="พิมพ์การวิเคราะห์หรือแสดงขั้นตอนการคำนวณ...", label_visibility="collapsed")
             st.write("") 
 
         if st.form_submit_button("📤 ส่งข้อสอบและตรวจคำตอบ", use_container_width=True):
@@ -203,7 +210,7 @@ elif st.session_state.app_mode == "result":
             if is_correct: st.success(f"✅ ถูกต้อง! ({u_ans})")
             else:
                 st.error(f"❌ ผิด (คำตอบคุณ: {u_ans} | เฉลย: {q.get('a')})")
-            st.info(f"💡 {q.get('detail')}")
+            st.info(f"💡 **วิธีทำอย่างละเอียด:** {q.get('detail')}")
     if st.button("🔄 สุ่มสร้างชุดใหม่", use_container_width=True):
         st.session_state.app_mode = "start"
         st.rerun()
