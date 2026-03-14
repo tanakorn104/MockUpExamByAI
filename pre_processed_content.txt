@@ -1,0 +1,103 @@
+=========================================================
+KNOWLEDGE BASE FOR COMPUTER ARCHITECTURE FINAL EXAM
+SOURCE: CHAPTER 7 (I/O) & CHAPTER 8 (CPU & INSTRUCTION SETS)
+=========================================================
+
+=== CHAPTER 7: INPUT/OUTPUT (I/O) ===
+
+[1. External Devices & I/O Modules]
+- I/O Module คือองค์ประกอบหลักที่เชื่อมระหว่าง อุปกรณ์ต่อพ่วง (Peripheral devices) กับ System Bus (CPU/Memory)
+- สาเหตุที่ต้องมี I/O Module: อุปกรณ์ภายนอกมี Data Transfer Rate, Data Format (ขนาด Word) และกลไกการทำงานที่ต่างจาก CPU มาก จึงต้องมีตัวกลางคอยจัดการและพักข้อมูล (Buffer)
+- ประเภทอุปกรณ์: 
+  1. Human Readable (ให้มนุษย์อ่าน): Monitor, Printer, Speaker
+  2. Machine Readable (ให้เครื่องอ่าน/เก็บเป็นประจุไฟฟ้า): Sensor, Motor, Flash drive
+  3. Communication (ใช้สื่อสาร): LAN, Modem, Firewire
+
+[2. I/O Module Functions]
+- Control & Timing: ประสานงานเวลาและการควบคุม
+- Processor Communication: รับ-ส่งข้อมูลกับ CPU (ถอดรหัสคำสั่ง, รายงานสถานะ Address recognition)
+- Device Communication: รับ-ส่งข้อมูลกับอุปกรณ์
+- Data Buffering: พักข้อมูลชั่วคราวเพราะ CPU เร็วกว่าอุปกรณ์มาก
+- Error Detection: ตรวจสอบข้อผิดพลาดและรายงาน CPU
+
+[3. IRA Control Characters (รหัสควบคุมที่ใช้ออกข้อสอบบ่อย)]
+- Format Control: BS (Backspace ถอยหลัง 1 ตำแหน่ง), HT (Horizontal Tab), LF (Line Feed ขึ้นบรรทัดใหม่), VT (Vertical Tab), FF (Form Feed ขึ้นหน้าใหม่), CR (Carriage Return กลับต้นบรรทัด)
+- Transmission Control (ควบคุมการรับส่งข้อมูล): 
+  * SOH (Start of Heading), STX (Start of Text เริ่มเนื้อหา), ETX (End of Text จบเนื้อหา)
+  * EOT (End of Transmission จบการส่ง วางสายได้), ENQ (Enquiry ถามว่าพร้อมรับไหม/คุณคือใคร)
+  * ACK (Acknowledge ตอบรับว่าข้อมูลถูกต้อง), NAK (Negative Acknowledge ข้อมูลมีปัญหาให้ส่งใหม่)
+  * SYN (Synchronous/Idle ปรับจังหวะเวลา), ETB (End of Transmission Block สิ้นสุดบล็อกข้อมูล)
+- Information Separator: คั่นข้อมูลจากใหญ่ไปเล็ก FS (File) > GS (Group) > RS (Record) > US (Unit)
+- Miscellaneous (อื่นๆ): NUL (ค่าว่าง), BEL (เสียงเตือน), DEL (ขีดฆ่า/ลบ), ESC (เปลี่ยนความหมายอักขระถัดไป)
+
+[4. 3 Techniques of I/O Control]
+1) Programmed I/O: 
+   - CPU สั่งงานแล้วต้องวนลูปรอ (Polling) เพื่อเช็คสถานะจนกว่า I/O จะเสร็จ (เสียเวลา CPU Cycles มากที่สุด)
+   - I/O Command แบ่งเป็น 4 แบบ: Control (สั่งทำงาน), Test (เช็คสถานะ), Read (อ่าน), Write (เขียน)
+2) Interrupt-driven I/O: 
+   - CPU สั่งงานแล้วไปทำโปรแกรมอื่นต่อ เมื่อ I/O พร้อมจะส่งสัญญาณ Interrupt มาสะกิด CPU
+   - Hardware Mechanism: CPU จะบันทึกสถานะปัจจุบัน (Push ค่า PSW และ PC ลง Control Stack) แล้วกระโดดไปทำ Interrupt Service Routine (ISR) เมื่อเสร็จจึง Pop ค่ากลับมาทำต่อ
+   - ข้อเสีย: CPU ยังต้องเสียเวลามาประมวลผลการย้ายข้อมูล (Data Transfer) ทีละชุด
+3) Direct Memory Access (DMA): 
+   - DMA Module ทำหน้าที่ย้ายข้อมูลระหว่าง I/O กับ Memory โดยตรง (ไม่ผ่าน CPU)
+   - CPU แค่สั่งการเริ่มต้น (ส่ง Address เริ่มต้น, Data Count, และคำสั่ง Read/Write)
+   - Cycle Stealing: DMA จะ "ขโมยจังหวะ" การใช้ System Bus จาก CPU เป็นเวลา 1 Clock Cycle เพื่อถ่ายโอนข้อมูล (มักแทรกช่วง Breakpoint หลังจังหวะ Fetch/Decode/Execute)
+   - DMA จะส่ง Interrupt หา CPU แค่ 1 ครั้ง เมื่อย้ายข้อมูลเสร็จทั้ง Block!
+
+[5. DMA Configurations & I/O Channels]
+- Single Bus, Detached DMA: ใช้ System Bus สายเดียว ย้ายข้อมูลต้องใช้ Bus 2 รอบ (I/O -> DMA -> Memory) ช้าและเกิดคอขวด
+- Single Bus, Integrated DMA: DMA และ I/O อยู่ด้วยกัน ใช้ Bus 1 รอบ
+- Separate I/O Bus: มีบัสรองสำหรับ I/O โดยเฉพาะ ขยายระบบง่ายและเร็วที่สุด
+- I/O Channel (เมื่อ I/O มี Processor เป็นของตัวเอง):
+  * Selector Channel: คุยกับอุปกรณ์ทีละตัวจนจบ เหมาะกับอุปกรณ์เร็วจัด (เช่น HDD)
+  * Multiplexor Channel: คุยแบบสลับคิว (Multitasking) เหมาะกับอุปกรณ์ช้า/ปานกลาง
+
+[6. External Interconnection Standards]
+- USB (Universal Serial Bus): รองรับ Hot-plug จ่ายไฟได้ ความเร็วสูงสุดปัจจุบัน USB4 V2 (80 Gbps)
+  * ขาภายใน USB-C ที่สำคัญ: VBUS (ไฟเลี้ยง), GND (กราวด์), TX/RX (ส่ง/รับข้อมูลความเร็วสูง), D+/D- (สำหรับ USB 2.0 เดิม), CC1/CC2 (เช็คการเสียบสายหงาย/คว่ำ)
+- Ethernet: มาตรฐาน LAN (IEEE 802.3) พัฒนาจาก Bus Topology ที่ข้อมูลชนกันง่าย สู่ยุคปัจจุบันที่ใช้ Switch (Star Topology) สร้างช่องทางเฉพาะทำให้ข้อมูลไม่ชนกัน
+- มาตรฐานอื่นๆ: Firewire (IEEE 1394 จาก Apple), SCSI, InfiniBand (ความเร็วสูงสำหรับ High-end server/Data Center), PCIe, SATA
+
+=== CHAPTER 8: CPU & INSTRUCTION SETS ===
+
+[1. Integer Representation]
+- Sign Magnitude: บิตซ้ายสุด (MSB) บอกเครื่องหมาย 0=บวก, 1=ลบ (ปัญหาคือบวกลบยาก และมี +0 กับ -0)
+- Twos Complement: นิยมใช้มากที่สุด ระบบนี้มี 0 เพียงแบบเดียว ขอบเขตของข้อมูล n บิต คือ -2^(n-1) ถึง (2^(n-1)) - 1
+  * Negation (ทำติดลบ): 1. กลับบิตทุกบิต (0->1, 1->0) 2. นำผลลัพธ์ไปบวก 1
+  * Sign Extension (ขยายบิต): เติมบิตให้เต็มโดยใช้ค่าของบิตเครื่องหมายเดิม (Sign bit) คัดลอกไปทางซ้าย
+- กฎการเกิด Overflow (Overflow Rule): "เกิดเมื่อนำเลขที่มีเครื่องหมายเหมือนกันมาบวกกัน แล้วผลลัพธ์มีเครื่องหมายตรงข้าม" (ถ้าบวกเลขต่างเครื่องหมาย จะไม่มีทางเกิด Overflow)
+
+[2. Integer Arithmetic (Twos Complement)]
+- Hardware สำหรับบวกลบ: มี A Register (ตัวตั้ง), B Register, Complementer (ทำ Twos complement โดยกลับบิตแล้ว +1), Adder, และ Switch (SW) เลือกว่าจะบวกหรือลบ (ถ้าลบ ให้ SW ดึงค่าจาก Complementer)
+- การลบ: A - B ให้ใช้หลักการ A + (-B)
+- Booth's Algorithm (การคูณ): ตรวจสอบบิต Q_0 และ Q_{-1} ทีละคู่
+  * 10: ให้ทำ A = A - M (ตัวตั้ง = ตัวตั้ง - ตัวคูณ)
+  * 01: ให้ทำ A = A + M (ตัวตั้ง = ตัวตั้ง + ตัวคูณ)
+  * 11 หรือ 00: ไม่ต้องบวกลบ
+  * ปิดท้ายแต่ละรอบ: ต้องทำ Arithmetic Shift Right (ASR) ที่ A, Q, Q_{-1} โดยรักษาเครื่องหมายบิตซ้ายสุดของ A ไว้เสมอ
+- Division (การหาร): 
+  * Shift Left (เลื่อนซ้าย) A, Q
+  * ถ้า M และ A มีเครื่องหมาย "เหมือนกัน" ให้ทำ A = A - M
+  * ถ้า M และ A มีเครื่องหมาย "ต่างกัน" ให้ทำ A = A + M
+
+[3. Floating-Point Representation (IEEE 754)]
+- โครงสร้าง 32-bit Single Precision:
+  1. Sign bit (1 บิต): 0 = บวก, 1 = ลบ
+  2. Biased Exponent (8 บิต): มีค่า Bias = 127 (สูตร: ค่า Exponent จริง = ค่าที่เก็บไว้ใน 8 บิตนี้ - 127)
+  3. Significand / Fraction (23 บิต): เก็บเลขหลังจุดทศนิยม
+- Normalization: จัดรูปให้อยู่ในแบบ 1.fraction x 2^E โดยที่เลข 1 หน้าจุดทศนิยมเรียกว่า "Implicit bit" ซึ่งคอมพิวเตอร์จะไม่เก็บลงในหน่วยความจำ (ประหยัดไป 1 บิต)
+- สูตรคำนวณค่าจริง: Value = (-1)^Sign x (1.fraction) x 2^(Exponent - 127)
+- Density (ความหนาแน่น): ตัวเลขจะ "หนาแน่น" (ระยะห่างน้อย) เมื่อค่าเข้าใกล้ 0 และตัวเลขจะ "ห่างกันมาก" เมื่อค่าเพิ่มขึ้น (ระยะห่าง Delta X = 2^(E-23))
+- FP Arithmetic Rules:
+  * บวกลบ: ต้องตรวจสอบ 0 -> จัด Exponent ให้ตรงกัน (Shift significand) -> บวกลบ -> Normalize
+  * คูณหาร: ตรวจสอบ 0 -> นำ Exponent มาบวกลบกัน -> นำ Significand มาคูณหารกัน -> Normalize -> ปัดเศษ (Round)
+
+[4. Machine Instruction & Number of Addresses]
+- Instruction Elements: Opcode (รหัสสั่งงาน), Source Operand, Result Operand, Next Instruction Reference
+- รูปแบบคำสั่ง (Address numbers):
+  * 3-Address: OP dest, src1, src2 (เช่น ADD Y, B, C แปลว่า Y = B + C) โปรแกรมจะสั้น แต่ฮาร์ดแวร์ทำงานซับซ้อน ใช้ Register เยอะ
+  * 2-Address: OP dest, src (เช่น ADD Y, B แปลว่า Y = Y + B) เอาคำตอบทับ Source ตัวแรก
+  * 1-Address: OP src (เช่น ADD B) โหลดค่าใส่ Accumulator (AC) เป็นค่าปริยาย
+  * 0-Address: ใช้โครงสร้าง Stack
+- การออกแบบ Instruction Set: สถาปัตยกรรมแบบ More addresses ทำให้โปรแกรมสั้นแต่ซับซ้อน แบบ Fewer addresses โปรแกรมจะยาว (หลายบรรทัด) แต่ CPU ดึงคำสั่งมาทำงานได้เร็วกว่า
+=========================================================
