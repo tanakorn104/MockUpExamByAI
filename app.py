@@ -37,7 +37,11 @@ if not API_KEY:
     st.error("❌ ไม่พบ API Key กรุณาตรวจสอบการตั้งค่า")
     st.stop()
 
-client = genai.Client(api_key=API_KEY)
+# แก้ไขจุดที่ 1: บังคับใช้ API เวอร์ชัน v1alpha สำหรับโมเดล 3.1 ที่เพิ่งออกใหม่
+client = genai.Client(
+    api_key=API_KEY,
+    http_options={'api_version': 'v1alpha'}
+)
 
 # ==========================================
 # 1. ระบบจัดการประวัติ (History State)
@@ -153,16 +157,16 @@ def generate_quiz():
         
         full_prompt = f"{final_instruction}\n{json_format_prompt}\n\nเนื้อหา:\n{content}"
 
+        # แก้ไขจุดที่ 2: เปลี่ยนโมเดลเป็น gemini-3.1-flash-lite
         response = client.models.generate_content(
             model='gemini-3.1-flash-lite',
             contents=full_prompt,
             config=types.GenerateContentConfig(
                 temperature=0.8,
-                response_mime_type="application/json" # นำกลับมาใช้ได้เพราะเป็นโมเดล Gemini
+                response_mime_type="application/json" 
             )
         )
         
-        # ทำความสะอาดข้อความเผื่อ AI ใส่ tag markdown มาด้วย
         res_text = response.text.strip()
         if res_text.startswith("```json"):
             res_text = res_text[7:]
