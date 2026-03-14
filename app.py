@@ -121,7 +121,6 @@ def generate_quiz():
         with open("instruction.txt", "r", encoding="utf-8") as f:
             final_instruction = f.read()
 
-        # แก้ไข Prompt เฉพาะส่วนนี้เพื่อบังคับให้ Gemma 3 12B ออกข้อสอบยาวๆ เหมือน Gemini Flash
         json_format_prompt = """
         สำคัญมาก: กรุณาตอบกลับเป็นรูปแบบ JSON Array เท่านั้น ห้ามมีข้อความอธิบายอื่นปะปน 
         
@@ -155,11 +154,11 @@ def generate_quiz():
         full_prompt = f"{final_instruction}\n{json_format_prompt}\n\nเนื้อหา:\n{content}"
 
         response = client.models.generate_content(
-            model='gemma-3-12b-it',
+            model='gemini-3.1-flash-lite',
             contents=full_prompt,
             config=types.GenerateContentConfig(
-                temperature=0.8
-                # นำ response_mime_type และ response_schema ออก เพราะโมเดลไม่รองรับ
+                temperature=0.8,
+                response_mime_type="application/json" # นำกลับมาใช้ได้เพราะเป็นโมเดล Gemini
             )
         )
         
